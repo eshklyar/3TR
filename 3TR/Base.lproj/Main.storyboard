@@ -76,6 +76,21 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gZ2-bF-OmS">
+                                <rect key="frame" x="60" y="414" width="245" height="64"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="crc-fd-fMs">
+                                <rect key="frame" x="126" y="486" width="124" height="61"/>
+                                <state key="normal" title="Play again?">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="onPlayAgainBtnPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="czv-DH-Jgj"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <gestureRecognizers/>
@@ -94,7 +109,9 @@
                         <outlet property="Label7" destination="HxV-8r-Ynm" id="CGB-wn-zIe"/>
                         <outlet property="Label8" destination="C7H-nl-Q8e" id="YAO-Qe-UgT"/>
                         <outlet property="Label9" destination="QQ7-Wz-vgX" id="CPL-ri-uOE"/>
+                        <outlet property="playAgainBtn" destination="crc-fd-fMs" id="ebk-7a-7vj"/>
                         <outlet property="whichPlayerLabel" destination="O65-YE-OPm" id="GON-Zo-fxN"/>
+                        <outlet property="winLabel" destination="gZ2-bF-OmS" id="q7R-VL-8PV"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>

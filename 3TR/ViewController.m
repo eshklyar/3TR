@@ -20,16 +20,20 @@
 @property (weak, nonatomic) IBOutlet UILabel *Label8;
 @property (weak, nonatomic) IBOutlet UILabel *Label9;
 @property (weak, nonatomic) IBOutlet UILabel *whichPlayerLabel;
+@property (weak, nonatomic) IBOutlet UILabel *winLabel;
+@property (weak, nonatomic) IBOutlet UIButton *playAgainBtn;
 @property NSArray *myLabels;
 @property NSMutableArray *remainingLabelsInGame;
 @property BOOL turn;
+@property BOOL win;
+
 @property NSInteger myLabelsIndex;
 @property NSMutableArray *gameMatrix;
 @property NSInteger turnCount;
 @property Player *playerOne;
 @property Player *playerTwo;
 
-@property NSMutableArray *winningSets;
+@property NSArray *winningSets;
 
 
 //@property NSString *matrixStrings[3][3];
@@ -56,51 +60,67 @@
 
                                             ];
 
-
-//    self.matrix = @[
-//                    @[ @"", @"", @""],
-//                    @[ @"", @"", @""],
-//                    @[ @"", @"", @""],
-//                    ];
-
-//    self.myLabelsIndex = 0;
     self.myLabels = @[self.Label1, self.Label2, self.Label3, self.Label4, self.Label5, self.Label6,self.Label7, self.Label8, self.Label9];
-    self.remainingLabelsInGame = [NSMutableArray arrayWithArray:self.myLabels];
 
-    self.turnCount=0;
-    self.turn = TRUE;
 
-    [self setwhichPlayerLabel:self.turn];
-
-    [self setLabelsNewGame];
-
+//    self.remainingLabelsInGame = [NSMutableArray arrayWithArray:self.myLabels];
+//
+//    self.turnCount=0;
+//    self.turn = TRUE;
+//    self.win = FALSE;
+//
+//    [self setwhichPlayerLabel:self.turn];
+//    [self setLabelsNewGame];
 
 //init original matrix with bool NO values
-    self.gameMatrix = [NSMutableArray new];
-    [self matrixWithBoolNo:self.gameMatrix];
+//    self.gameMatrix = [NSMutableArray new];
+//    [self matrixWithBoolNo:self.gameMatrix];
 
 #pragma Player
     //created two players and inited array property with bool faulse values
     self.playerOne = [Player new];
     self.playerOne.name =@"playerOne";
-//    need to figure out how to init with bool in Player Class
-    self.playerOne.matrix = [NSMutableArray arrayWithArray: self.gameMatrix];
+//    [self setupPlayer:self.playerOne];
 
     self.playerTwo = [Player new];
     self.playerTwo.name =@"playerTwo";
-    self.playerTwo.matrix = [NSMutableArray arrayWithArray: self.gameMatrix];
+//    [self setupPlayer:self.playerTwo];
+       [self startTheGame];
+}
+
+-(void)startTheGame{
+
+     self.winLabel.enabled = FALSE;
+    self.winLabel.text =@"";
+
+    self.remainingLabelsInGame = [NSMutableArray arrayWithArray:self.myLabels];
+
+    self.turnCount=0;
+    self.turn = TRUE;
+    self.win = FALSE;
+    [self setwhichPlayerLabel:self.turn];
+    [self setLabelsNewGame];
+
+    //init original matrix with bool NO values
+    self.gameMatrix = [NSMutableArray new];
+    [self matrixWithBoolNo:self.gameMatrix];
+    [self setupPlayer:self.playerOne];
+    [self setupPlayer:self.playerTwo];
+
+}
+
+
+-(void)setupPlayer:(Player*)player{
+    player.matrix= [NSMutableArray arrayWithArray: self.gameMatrix];
 }
 
 //init the gameMatrix
 -(NSMutableArray*)matrixWithBoolNo:(NSMutableArray*)array{
     for (int i=0; i<9; i++) {
-//      [self.tempMatrix addObject:[NSNumber numberWithBool:NO]];
         [array addObject:@NO];
     }
-    NSLog(@"matrixwithboolNO %@", array);
     return array;
 }
-
 
 //set labels background color
 -(void)setLabelsNewGame {
@@ -127,33 +147,40 @@
     CGPoint point = [gesture locationInView:self.view];
 //    find label using findLabelUsingPoint method passing point as argument
     UILabel* searchLabel = [self findLabelUsingPoint:point];
+//    self.turnCount++;
+//    self.winLabel.text =[NSString stringWithFormat:@"%ld", (long)self.turnCount];
+
 //    check player turn and set label accordingly
-    if (!self.turn && searchLabel) {
-        searchLabel.textColor =[UIColor blueColor];
-        searchLabel.text =@"X";
-        NSLog(@"my myLabelsIndex is %ld", self.myLabelsIndex);
-        
+    if (!self.win && !self.turn && searchLabel) {
+        [self markLabelBlue:searchLabel];
         [self changeMatrixValueForPlayer:self.playerOne atIndex:self.myLabelsIndex];
 
-        NSLog(@"player index mylabelsIndex %ld", (long)self.myLabelsIndex);
 
-        NSLog(@"player index value 1 %@", self.playerOne.matrix[self.myLabelsIndex]);
+        if (!self.win && self.turnCount!=9) {
+             [self setwhichPlayerLabel:self.turn];
+        }
+        else if (self.turnCount!=9){
+            NSLog(@"game over");
+            self.whichPlayerLabel.text = [self.playerOne.name stringByAppendingString:@" WINS"];
+        }
+        else{
+            self.whichPlayerLabel.text = @"TIE";
 
-//        self.turn = FALSE;
-        [self setwhichPlayerLabel:self.turn];
+        }
+
     }
-    else if (self.turn && searchLabel)
+    else if (!self.win && self.turn && searchLabel)
     {
-        searchLabel.textColor =[UIColor redColor];
-        searchLabel.text =@"O";
+        [self markLabelRed:searchLabel];
         [self changeMatrixValueForPlayer:self.playerTwo atIndex:self.myLabelsIndex];
 
-        NSLog(@"player ixdex value 2 %@", self.playerTwo.matrix[self.myLabelsIndex]);
-        NSLog(@"player index hello  %ld", (long)self.myLabelsIndex);
+        if (!self.win) {
+            [self setwhichPlayerLabel:self.turn];
+        } else {
+            NSLog(@"game over");
+            self.whichPlayerLabel.text = [self.playerTwo.name stringByAppendingString:@" WINS"];
 
-
-//        self.turn = TRUE;
-        [self setwhichPlayerLabel:self.turn];
+        }
     }
 }
 
@@ -170,8 +197,6 @@
         {
 //get and index of the selected label in myLabels array
             self.myLabelsIndex =[self getMyLabelsIndex:tempLabel];
-            NSLog(@"myLabelsIndex inside findLabelUsingPoint is %ld", (long)self.myLabelsIndex);
-
 //remove marked label from the array
             [self.remainingLabelsInGame removeObjectIdenticalTo:tempLabel];
 //            [self SetTheGameEnd:self.turnCount];
@@ -187,58 +212,50 @@
     }
     return nil;
 }
+
+
+-(void)markLabelBlue:(UILabel*)label{
+    label.textColor =[UIColor blueColor];
+    label.text =@"X";
+}
+
+-(void)markLabelRed:(UILabel*)label{
+    label.textColor =[UIColor redColor];
+    label.text =@"O";
+}
 -(void)SetTheGameEnd: (NSInteger)count{
-
     [self.gameMatrix replaceObjectAtIndex:count withObject:@YES];
-
-    if (count >= 8) {
+    if (count > 9) {
 //    if ([self.gameMatrix containsObject:@NO]) {
-
         NSLog(@"game over");
     }
-
 }
 
 //get an idex of corresponding label in the array
 -(NSInteger)getMyLabelsIndex: (UILabel*)label{
-for (int i=0; i<9; i++)
+    for (int i=0; i<9; i++)
     {
-//    if ([self.myLabels containsObject:label])
         if ([self.myLabels[i] isEqual:label]) {
-             NSLog(@"the getMyLabelsIndex index is %d", i);
             return i;
-            NSLog(@"getMyLabelsIndex is %d",i);
-        }
-    {
-//        self.myLabelsIndex = i;
-//        NSLog(@"the index is %d", i);
-//        return i;
+            break;
+            }
+
     }
+return nil;
 }
-    return nil;
-}
-
-
-
 
 
 -(void)changeMatrixValueForPlayer:(Player*) player atIndex:(NSInteger) index{
-//    player.matrix[index] = @YES;
-    NSLog(@"changeMatrixValueForPlayer 've been called");
     [player.matrix replaceObjectAtIndex:index withObject:@YES];
     [self comparePlayerMatrix:self.winningSets with: player];
-
 }
 
--(void)comparePlayerMatrix: (NSMutableArray*)winingArray with: (Player*) player
+-(void)comparePlayerMatrix: (NSArray*)winingArray with: (Player*) player
 {
-    NSLog(@"my player %@", player);
-
     //go thru each array in the array with array of winningSet
     for (int j=0; j<8; j++)
     {
         NSMutableArray* jArray = [NSMutableArray arrayWithArray:winingArray[j]];
-
         int threeInRow=0;
 
         for (int i=0; i<3; i++)
@@ -246,40 +263,19 @@ for (int i=0; i<9; i++)
             NSNumber *num = [jArray objectAtIndex:i];
             int position = [num intValue];
 
-            NSLog(@"[player.matrix[position] %@", player.matrix[position]);
-
-
-            //            NSLog(@"i is %d", i);
-            //            int position = [NSNumber numberWithInteger: [jArray objectAtIndex:i] ];
-            //            NSLog(@"bla %@", [jArray objectAtIndex:i] );
-
-            //            NSLog(@"position again is %d", position);
-            //            NSLog(@"jarray at i is %@", [jArray objectAtIndex:i]);
-            //            NSLog(@"position is %d", position);
-            //            NSLog(@"testing testing bool %s", [player.matrix objectAtIndex:i] ? "true" : "false");
-            //            NSLog(@"testing testing bool %@ %d", [player.matrix objectAtIndex:i], i);
-
-            //            NSLog(@"player at 2 %@", player.matrix[2]);
-
-            //            NSLog(@"position is %d", position);
-            //            NSLog(@"[player.matrix objectAtIndex:position] %@",[player.matrix objectAtIndex:position] );
             if ([player.matrix[position] isEqualToNumber:[NSNumber numberWithBool:@YES]])
-
-                //            if ([[player.matrix objectAtIndex: [jArray objectAtIndex:i]] isEqualToNumber:[NSNumber numberWithBool:@YES]])
             {
-                //                NSLog(@"win!!!!!!!%@ %ld", [player.matrix objectAtIndex:position],(long)position);
                 threeInRow++;
-                NSLog(@"incrementing 3inRow, %d", threeInRow);
-                
             }
-            else{
-                NSLog(@"no match");
-                 NSLog(@"3inRow, %d", threeInRow);
-            }
+
         }
+        NSLog(@"three in row count %d", threeInRow);
         if (threeInRow==3) {
             NSLog(@"win!!!!!!!");
-//            self.whichPlayerLabel.text =
+//            self.winLabel.enabled = TRUE;
+//            self.winLabel.text = @"win!";
+            self.win = TRUE;
+            break;
         }
     }
 }
@@ -332,5 +328,8 @@ for (int i=0; i<9; i++)
 //    return cellArray;
 //
 //}
+- (IBAction)onPlayAgainBtnPressed:(id)sender {
+    [self startTheGame];
+}
 
 @end
