@@ -10,6 +10,7 @@
 #import "Player.h"
 
 @interface ViewController ()
+
 @property (weak, nonatomic) IBOutlet UILabel *Label1;
 @property (weak, nonatomic) IBOutlet UILabel *Label2;
 @property (weak, nonatomic) IBOutlet UILabel *Label3;
@@ -20,7 +21,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *Label8;
 @property (weak, nonatomic) IBOutlet UILabel *Label9;
 @property (weak, nonatomic) IBOutlet UILabel *whichPlayerLabel;
-@property (weak, nonatomic) IBOutlet UILabel *winLabel;
+@property (weak, nonatomic) IBOutlet UILabel *xLabel;
+@property (weak, nonatomic) IBOutlet UILabel *oLabel;
 @property (weak, nonatomic) IBOutlet UIButton *playAgainBtn;
 @property NSArray *myLabels;
 @property NSMutableArray *remainingLabelsInGame;
@@ -45,6 +47,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    self.xLabel.textColor =[UIColor whiteColor];
+    self.xLabel.backgroundColor=[UIColor blueColor];
+    self.playAgainBtn.enabled = false;
+//    self.xLabel.text =@"X";
+//
+    self.oLabel.textColor =[UIColor whiteColor];
+//    self.oLabel.text =@"O";
+     self.oLabel.backgroundColor=[UIColor redColor];
+
 //    load 8 winning combinations into winningSets array with arrays, each array corespond to a a winning row/colum/diagonal line
     self.winningSets = @[
                                             @[ @0, @1, @2],
@@ -63,35 +74,21 @@
     self.myLabels = @[self.Label1, self.Label2, self.Label3, self.Label4, self.Label5, self.Label6,self.Label7, self.Label8, self.Label9];
 
 
-//    self.remainingLabelsInGame = [NSMutableArray arrayWithArray:self.myLabels];
-//
-//    self.turnCount=0;
-//    self.turn = TRUE;
-//    self.win = FALSE;
-//
-//    [self setwhichPlayerLabel:self.turn];
-//    [self setLabelsNewGame];
-
-//init original matrix with bool NO values
-//    self.gameMatrix = [NSMutableArray new];
-//    [self matrixWithBoolNo:self.gameMatrix];
-
 #pragma Player
     //created two players and inited array property with bool faulse values
     self.playerOne = [Player new];
-    self.playerOne.name =@"playerOne";
-//    [self setupPlayer:self.playerOne];
+    self.playerOne.name =@"Player One";
 
     self.playerTwo = [Player new];
-    self.playerTwo.name =@"playerTwo";
-//    [self setupPlayer:self.playerTwo];
-       [self startTheGame];
+    self.playerTwo.name =@"Player Two";
+
+    [self startTheGame];
 }
 
 -(void)startTheGame{
 
-     self.winLabel.enabled = FALSE;
-    self.winLabel.text =@"";
+//    self.winLabel.enabled = FALSE;
+//    self.winLabel.text =@"";
 
     self.remainingLabelsInGame = [NSMutableArray arrayWithArray:self.myLabels];
 
@@ -106,9 +103,7 @@
     [self matrixWithBoolNo:self.gameMatrix];
     [self setupPlayer:self.playerOne];
     [self setupPlayer:self.playerTwo];
-
 }
-
 
 -(void)setupPlayer:(Player*)player{
     player.matrix= [NSMutableArray arrayWithArray: self.gameMatrix];
@@ -142,30 +137,38 @@
 }
 
 //method to detect user tapping on the screen
-- (IBAction)onLabelTapped:(UITapGestureRecognizer *)gesture {
+- (IBAction)onLabelTapped:(UITapGestureRecognizer *)gesture
+{
 //    get the point of tap from gesture recognizer
     CGPoint point = [gesture locationInView:self.view];
 //    find label using findLabelUsingPoint method passing point as argument
     UILabel* searchLabel = [self findLabelUsingPoint:point];
 //    self.turnCount++;
+//    self.winLabel.enabled =TRUE;
 //    self.winLabel.text =[NSString stringWithFormat:@"%ld", (long)self.turnCount];
 
 //    check player turn and set label accordingly
-    if (!self.win && !self.turn && searchLabel) {
+    if (!self.win && !self.turn && searchLabel)
+    {
         [self markLabelBlue:searchLabel];
         [self changeMatrixValueForPlayer:self.playerOne atIndex:self.myLabelsIndex];
 
 
-        if (!self.win && self.turnCount!=9) {
+        if (!self.win && self.turnCount!=9)
              [self setwhichPlayerLabel:self.turn];
-        }
-        else if (self.turnCount!=9){
-            NSLog(@"game over");
-            self.whichPlayerLabel.text = [self.playerOne.name stringByAppendingString:@" WINS"];
-        }
-        else{
-            self.whichPlayerLabel.text = @"TIE";
 
+        else if (self.turnCount!=9)
+        {
+//            NSLog(@"game over");
+//            self.whichPlayerLabel.text = [self.playerOne.name stringByAppendingString:@" WINS"];
+                self.whichPlayerLabel.text = @"X wins";
+                [self setAlertXWins];
+        }
+        else
+        {
+            self.whichPlayerLabel.text = @"TIE";
+            self.whichPlayerLabel.textColor = [UIColor greenColor];
+            [self setAlertGameOver];
         }
 
     }
@@ -177,9 +180,10 @@
         if (!self.win) {
             [self setwhichPlayerLabel:self.turn];
         } else {
-            NSLog(@"game over");
-            self.whichPlayerLabel.text = [self.playerTwo.name stringByAppendingString:@" WINS"];
-
+//            NSLog(@"game over");
+//            self.whichPlayerLabel.text = [self.playerTwo.name stringByAppendingString:@" WINS"];
+                      self.whichPlayerLabel.text = @"O wins";
+            [self setAlertOWins];
         }
     }
 }
@@ -196,7 +200,7 @@
         if(CGRectContainsPoint(tempLabel.frame, point))
         {
 //get and index of the selected label in myLabels array
-            self.myLabelsIndex =[self getMyLabelsIndex:tempLabel];
+            self.myLabelsIndex = [self getMyLabelsIndex:tempLabel];
 //remove marked label from the array
             [self.remainingLabelsInGame removeObjectIdenticalTo:tempLabel];
 //            [self SetTheGameEnd:self.turnCount];
@@ -223,25 +227,28 @@
     label.textColor =[UIColor redColor];
     label.text =@"O";
 }
--(void)SetTheGameEnd: (NSInteger)count{
-    [self.gameMatrix replaceObjectAtIndex:count withObject:@YES];
-    if (count > 9) {
-//    if ([self.gameMatrix containsObject:@NO]) {
-        NSLog(@"game over");
-    }
-}
+//-(void)SetTheGameEnd: (NSInteger)count{
+//    [self.gameMatrix replaceObjectAtIndex:count withObject:@YES];
+//    if (count > 9) {
+////    if ([self.gameMatrix containsObject:@NO]) {
+//        NSLog(@"game over");
+//    }
+//}
 
 //get an idex of corresponding label in the array
--(NSInteger)getMyLabelsIndex: (UILabel*)label{
-    for (int i=0; i<9; i++)
+-(NSInteger)getMyLabelsIndex: (UILabel*)label
+{
+    NSInteger j;
+    for (NSInteger i = 0; i < self.myLabels.count; i++)
     {
-        if ([self.myLabels[i] isEqual:label]) {
-            return i;
+        if ([self.myLabels[i] isEqual:label])
+        {
+            j = i;
+//            return i;
             break;
-            }
-
+        }
     }
-return nil;
+ return j;
 }
 
 
@@ -269,7 +276,7 @@ return nil;
             }
 
         }
-        NSLog(@"three in row count %d", threeInRow);
+//        NSLog(@"three in row count %d", threeInRow);
         if (threeInRow==3) {
             NSLog(@"win!!!!!!!");
 //            self.winLabel.enabled = TRUE;
@@ -280,56 +287,178 @@ return nil;
     }
 }
 
-//-(void)comaprePlayerMAtrix: (NSMutableArray*) array{
-//    BOOL winning = @NO;
-//    if ( [[array objectAtIndex:0] isEqualToNumber:[NSNumber numberWithBool: @"YES"]] )
-//    {
-//        NSLog(@"YES");
-//    }
-
-
-//}
-//-(void)setLabelInMatrix:(NSArray*)coordinat{
-// NSLog(@"matrix got you");
-////
-////    NSNumber *i = [NSNumber numberWithInteger: coordinat[0]];
-////    NSInteger j = coordinat[1];
-////
-//// self.matrix[coordinat[0]][coordinat[1]]= @"XXX";
-////    self.matrix[i,j]= @"XXX";
-//
-//     self.matrix[0]= @"XXX";
-//    NSLog(@"my matrix is %@", self.matrix);
-//
-//}
-
-//-(NSArray*) findCellInMatrixFromIndexInArray: (NSInteger)index{
-//
-//    NSMutableArray * cellArray =[[NSMutableArray alloc] initWithCapacity:2];
-//    int row, colum;
-//
-//    for (int i=1; i<=3; i++)
-//    {
-//        if ((i * 3) > index)
-//        {
-//            row =i-1;
-//            NSLog(@"row is %d", row);
-//            break;
-//        }
-//    }
-//
-//    colum = index % 3;
-//
-//    [cellArray addObject:[NSNumber numberWithInt:row]];
-//    [cellArray addObject:[NSNumber numberWithInt:colum]];
-//
-//    NSLog (@"cell is: %@ %@", [cellArray objectAtIndex:0], [cellArray objectAtIndex:1]);
-//
-//    return cellArray;
-//
-//}
 - (IBAction)onPlayAgainBtnPressed:(id)sender {
     [self startTheGame];
 }
 
+-(void)setAlertGameOver{
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"IT'S A TIE"
+                                                                   message:@"play again?"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {
+                                                              [self startTheGame];
+                                                              [alert dismissViewControllerAnimated:YES completion:nil];
+                                                          }];
+    UIAlertAction* cancel = [UIAlertAction
+                             actionWithTitle:@"Cancel"
+                             style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction * action)
+                             {
+                                 [alert dismissViewControllerAnimated:YES completion:nil];
+
+                             }];
+    [alert addAction:okAction];
+    [alert addAction:cancel];
+    [self presentViewController:alert animated:YES completion:nil];
+
+}
+-(void)setAlertXWins{
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"X WINS!"
+                                                                   message:@"play again?"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+                                                     handler:^(UIAlertAction * action) {
+                                                         [self startTheGame];
+                                                         [alert dismissViewControllerAnimated:YES completion:nil];
+                                                     }];
+    UIAlertAction* cancel = [UIAlertAction
+                             actionWithTitle:@"Cancel"
+                             style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction * action)
+                             {
+                                 [alert dismissViewControllerAnimated:YES completion:nil];
+
+                             }];
+    [alert addAction:okAction];
+    [alert addAction:cancel];
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+-(void)setAlertOWins{
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"O WINS"
+                                                                   message:@"play again?"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+                                                     handler:^(UIAlertAction * action) {
+                                                         [self startTheGame];
+                                                         [alert dismissViewControllerAnimated:YES completion:nil];
+                                                     }];
+    UIAlertAction* cancel = [UIAlertAction
+                             actionWithTitle:@"Cancel"
+                             style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction * action)
+                             {
+                                 [alert dismissViewControllerAnimated:YES completion:nil];
+
+                             }];
+    [alert addAction:okAction];
+    [alert addAction:cancel];
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+//- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+//    return true;
+//
+//}
+
+//- (IBAction)labelDragWithPanGesture:(UIPanGestureRecognizer *)panGesture {
+//
+//    CGPoint original = panGesture.view.center;
+//    CGPoint originalX = self.xLabel.center;
+//      NSLog(@"stateBegun %f %f", original.x , original.y);
+//    NSLog(@"bla %f %f", originalX.x , originalX.y);
+//
+//
+////     image1.center = [pan locationInView:image1.superview];
+////    [self.view addGestureRecognizer:panGesture];
+////    [self.xLabel addGestureRecognizer:panGesture];
+//
+////    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(move:)];
+//    [panGesture setMinimumNumberOfTouches:1];
+//    [panGesture setMaximumNumberOfTouches:1];
+////    [self.view addGestureRecognizer:panGesture];
+//
+////    [panRecognizer release];
+//
+//    CGPoint translatedPoint = [panGesture translationInView:self.view];
+//
+////    if (CGRectContainsPoint(self.xLabel.frame, translatedPoint ) {
+////        cga
+////    }
+////    NSLog(@"translatedPoint %@", NSStringFromCGPoint (translatedPoint));
+//
+////    CGPoint original =panGesture.view.center;
+//
+//    panGesture.view.center = CGPointMake(panGesture.view.center.x + translatedPoint.x,
+//                                         panGesture.view.center.y + translatedPoint.y);
+//
+//    [panGesture setTranslation:CGPointMake(0, 0) inView:self.view];
+//    if ([panGesture state] == UIGestureRecognizerStateEnded) {
+//
+//        panGesture.view.center = CGPointMake(panGesture.view.center.x - translatedPoint.x,
+//                                             panGesture.view.center.y - translatedPoint.y);
+//        NSLog(@"stateEnded %f %f", original.x , original.y);
+//    }
+
+//testing
+//    CGFloat firstX;
+//    CGFloat firstY;
+//
+//    if ([panGesture state] == UIGestureRecognizerStateBegan) {
+//        firstX = [[panGesture view] center].x;
+//        firstY = [[panGesture view] center].y;
+//    }
+//
+//    translatedPoint = CGPointMake(firstX+translatedPoint.x, firstY);
+//    NSLog(@"translatedPoint 2 %@", NSStringFromCGPoint (translatedPoint));
+
+//    [[panGesture view] setCenter:translatedPoint];
+
+//    if ([panGesture state] == UIGestureRecognizerStateEnded) {
+//
+//
+//
+//        CGPoint velocity = [panGesture velocityInView:self.view];
+//        CGFloat magnitude = sqrtf((velocity.x * velocity.x) + (velocity.y * velocity.y));
+//        CGFloat slideMult = magnitude / 200;
+//        NSLog(@"magnitude: %f, slideMult: %f", magnitude, slideMult);
+//
+//        float slideFactor = 0.1 * slideMult; // Increase for more of a slide
+//        CGPoint finalPoint = CGPointMake(panGesture.view.center.x + (velocity.x * slideFactor),
+//                                         panGesture.view.center.y + (velocity.y * slideFactor));
+//        finalPoint.x = MIN(MAX(finalPoint.x, 0), self.view.bounds.size.width);
+//        finalPoint.y = MIN(MAX(finalPoint.y, 0), self.view.bounds.size.height);
+//
+//        [UIView animateWithDuration:slideFactor*2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+//            panGesture.view.center = finalPoint;
+//        } completion:nil];
+//
+
+
+//
+//        CGFloat velocityX = (0.2*[panGesture velocityInView:self.view].x);
+//        NSLog(@"velocityX  %f", velocityX);
+//
+//
+//
+//        CGFloat finalX = translatedPoint.x + velocityX;
+//        CGFloat finalY = firstY;// translatedPoint.y + (.35*[(UIPanGestureRecognizer*)sender velocityInView:self.view].y);
+//        CGFloat animationDuration = (ABS(velocityX)*.0002)+.2;
+//
+//        NSLog(@"the duration is: %f", animationDuration);
+//
+//        [UIView beginAnimations:nil context:NULL];
+//        [UIView setAnimationDuration:animationDuration];
+//        [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+////        [UIView setAnimationDelegate:self];
+////        [UIView setAnimationDidStopSelector:@selector(animationDidFinish)];
+//        [[panGesture view] setCenter:CGPointMake(finalX, finalY)];
+//        [UIView commitAnimations];
+
+//    }
+//}
 @end
