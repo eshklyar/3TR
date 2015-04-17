@@ -37,6 +37,9 @@
 
 @property NSArray *winningSets;
 
+@property BOOL originalCoordinate;
+@property CGPoint originalPosition;
+
 
 //@property NSString *matrixStrings[3][3];
 
@@ -46,6 +49,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    self.originalCoordinate = true;
 
     self.xLabel.textColor =[UIColor whiteColor];
     self.xLabel.backgroundColor=[UIColor blueColor];
@@ -358,6 +363,33 @@
     [alert addAction:okAction];
     [alert addAction:cancel];
     [self presentViewController:alert animated:YES completion:nil];
+    
+}
+
+- (IBAction)handlePan:(UIPanGestureRecognizer *)recognizer
+    {
+    CGPoint translation = [recognizer translationInView:self.view];
+    if (self.originalCoordinate)
+    {
+        if (CGRectContainsPoint(self.xLabel.frame, recognizer.view.center)) {
+            self.originalPosition = recognizer.view.center;
+            self.originalCoordinate = false;
+        }
+        else if (CGRectContainsPoint(self.oLabel.frame, recognizer.view.center)){
+            self.originalPosition = recognizer.view.center;
+            self.originalCoordinate = false;
+        }
+    }
+    recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
+                                         recognizer.view.center.y + translation.y);
+    [recognizer setTranslation:CGPointMake(0, 0) inView:self.view];
+
+    if (recognizer.state == UIGestureRecognizerStateEnded)
+    {
+        recognizer.view.center = self.originalPosition;
+        self.originalCoordinate = true;
+    }
+
     
 }
 //- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{

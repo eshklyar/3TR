@@ -78,9 +78,13 @@
                             </label>
                             <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="X" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gZ2-bF-OmS">
                                 <rect key="frame" x="114" y="414" width="54" height="48"/>
+                                <gestureRecognizers/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="Hth-ta-Cuk" appends="YES" id="dEW-IA-nuX"/>
+                                </connections>
                             </label>
                             <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="O" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="T8t-r4-HlO">
                                 <rect key="frame" x="214" y="414" width="54" height="48"/>
@@ -88,6 +92,9 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="aeZ-18-wnx" appends="YES" id="sYX-AI-cB7"/>
+                                </connections>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="crc-fd-fMs">
                                 <rect key="frame" x="126" y="486" width="124" height="61"/>
@@ -128,6 +135,16 @@
                         <action selector="onLabelTapped:" destination="vXZ-lx-hvc" id="1hj-Em-jgw"/>
                     </connections>
                 </tapGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="Hth-ta-Cuk">
+                    <connections>
+                        <action selector="handlePan:" destination="vXZ-lx-hvc" id="zdk-L2-pFt"/>
+                    </connections>
+                </panGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="aeZ-18-wnx">
+                    <connections>
+                        <action selector="handlePan:" destination="vXZ-lx-hvc" id="5yz-fv-ENi"/>
+                    </connections>
+                </panGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="1117" y="368"/>
         </scene>
