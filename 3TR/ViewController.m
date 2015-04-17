@@ -39,6 +39,7 @@
 
 @property BOOL originalCoordinate;
 @property CGPoint originalPosition;
+@property BOOL panTurn;
 
 
 //@property NSString *matrixStrings[3][3];
@@ -51,6 +52,7 @@
     [super viewDidLoad];
 
     self.originalCoordinate = true;
+    self.panTurn = TRUE;
 
     self.xLabel.textColor =[UIColor whiteColor];
     self.xLabel.backgroundColor=[UIColor blueColor];
@@ -144,30 +146,25 @@
 //method to detect user tapping on the screen
 - (IBAction)onLabelTapped:(UITapGestureRecognizer *)gesture
 {
-//    get the point of tap from gesture recognizer
     CGPoint point = [gesture locationInView:self.view];
-//    find label using findLabelUsingPoint method passing point as argument
     UILabel* searchLabel = [self findLabelUsingPoint:point];
-//    self.turnCount++;
-//    self.winLabel.enabled =TRUE;
-//    self.winLabel.text =[NSString stringWithFormat:@"%ld", (long)self.turnCount];
+    [self checkTurnAndSetLabel:searchLabel];
+}
 
-//    check player turn and set label accordingly
+-(void)checkTurnAndSetLabel:(UILabel*) searchLabel{
+
     if (!self.win && !self.turn && searchLabel)
     {
         [self markLabelBlue:searchLabel];
         [self changeMatrixValueForPlayer:self.playerOne atIndex:self.myLabelsIndex];
 
-
         if (!self.win && self.turnCount!=9)
-             [self setwhichPlayerLabel:self.turn];
+            [self setwhichPlayerLabel:self.turn];
 
         else if (self.turnCount!=9)
         {
-//            NSLog(@"game over");
-//            self.whichPlayerLabel.text = [self.playerOne.name stringByAppendingString:@" WINS"];
-                self.whichPlayerLabel.text = @"X wins";
-                [self setAlertXWins];
+            self.whichPlayerLabel.text = @"X wins";
+            [self setAlertXWins];
         }
         else
         {
@@ -182,12 +179,11 @@
         [self markLabelRed:searchLabel];
         [self changeMatrixValueForPlayer:self.playerTwo atIndex:self.myLabelsIndex];
 
-        if (!self.win) {
+        if (!self.win)
             [self setwhichPlayerLabel:self.turn];
-        } else {
-//            NSLog(@"game over");
-//            self.whichPlayerLabel.text = [self.playerTwo.name stringByAppendingString:@" WINS"];
-                      self.whichPlayerLabel.text = @"O wins";
+        else
+        {
+            self.whichPlayerLabel.text = @"O wins";
             [self setAlertOWins];
         }
     }
@@ -366,19 +362,20 @@
     
 }
 
-- (IBAction)handlePan:(UIPanGestureRecognizer *)recognizer
+- (IBAction)handlePanforX:(UIPanGestureRecognizer *)recognizer
     {
+if (self.turn) {
     CGPoint translation = [recognizer translationInView:self.view];
     if (self.originalCoordinate)
     {
         if (CGRectContainsPoint(self.xLabel.frame, recognizer.view.center)) {
+
             self.originalPosition = recognizer.view.center;
-            self.originalCoordinate = false;
         }
         else if (CGRectContainsPoint(self.oLabel.frame, recognizer.view.center)){
             self.originalPosition = recognizer.view.center;
-            self.originalCoordinate = false;
         }
+        self.originalCoordinate = false;
     }
     recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
                                          recognizer.view.center.y + translation.y);
@@ -386,12 +383,65 @@
 
     if (recognizer.state == UIGestureRecognizerStateEnded)
     {
+        CGPoint finalPoint = recognizer.view.center;
+        UILabel* searchLabel = [self findLabelUsingPoint:finalPoint];
+        [self checkTurnAndSetLabel:searchLabel];
         recognizer.view.center = self.originalPosition;
         self.originalCoordinate = true;
+        self.panTurn= false;
     }
 
+    }
+else
+{
+    recognizer.enabled=false;
+}
+
+
+}
+
+- (IBAction)handlePanForO:(UIPanGestureRecognizer *)recognizer
+{
+    if (!self.turn)
+    {
+        CGPoint translation = [recognizer translationInView:self.view];
+        if (self.originalCoordinate)
+        {
+            if (CGRectContainsPoint(self.xLabel.frame, recognizer.view.center))
+            {
+                self.originalPosition = recognizer.view.center;
+            }
+            else if (CGRectContainsPoint(self.oLabel.frame, recognizer.view.center))
+            {
+                self.originalPosition = recognizer.view.center;
+            }
+            
+            self.originalCoordinate = false;
+        }
+
+        recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
+                                             recognizer.view.center.y + translation.y);
+        [recognizer setTranslation:CGPointMake(0, 0) inView:self.view];
+
+        if (recognizer.state == UIGestureRecognizerStateEnded)
+        {
+            CGPoint finalPoint = recognizer.view.center;
+            UILabel* searchLabel = [self findLabelUsingPoint:finalPoint];
+            [self checkTurnAndSetLabel:searchLabel];
+            recognizer.view.center = self.originalPosition;
+            self.originalCoordinate = true;
+            self.panTurn= TRUE;
+    //        NSLog(@" O self.panTurn= TRUE");
+        }
+    }
+    else
+    {
+        recognizer.enabled=TRUE;
+//         NSLog(@" O self.panTurn= FALSE");
+    }
     
 }
+
 //- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
 //    return true;
 //

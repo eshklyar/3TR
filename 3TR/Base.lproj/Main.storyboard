@@ -137,12 +137,12 @@
                 </tapGestureRecognizer>
                 <panGestureRecognizer minimumNumberOfTouches="1" id="Hth-ta-Cuk">
                     <connections>
-                        <action selector="handlePan:" destination="vXZ-lx-hvc" id="zdk-L2-pFt"/>
+                        <action selector="handlePanforX:" destination="vXZ-lx-hvc" id="nGX-Qk-G2R"/>
                     </connections>
                 </panGestureRecognizer>
                 <panGestureRecognizer minimumNumberOfTouches="1" id="aeZ-18-wnx">
                     <connections>
-                        <action selector="handlePan:" destination="vXZ-lx-hvc" id="5yz-fv-ENi"/>
+                        <action selector="handlePanForO:" destination="vXZ-lx-hvc" id="0yo-wF-sp0"/>
                     </connections>
                 </panGestureRecognizer>
             </objects>
