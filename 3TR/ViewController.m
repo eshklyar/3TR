@@ -39,10 +39,7 @@
 
 @property BOOL originalCoordinate;
 @property CGPoint originalPosition;
-@property BOOL panTurn;
 
-
-//@property NSString *matrixStrings[3][3];
 
 @end
 
@@ -52,15 +49,15 @@
     [super viewDidLoad];
 
     self.originalCoordinate = true;
-    self.panTurn = TRUE;
 
     self.xLabel.textColor =[UIColor whiteColor];
     self.xLabel.backgroundColor=[UIColor blueColor];
-    self.playAgainBtn.enabled = false;
-//    self.xLabel.text =@"X";
-//
+    self.playAgainBtn.enabled = FALSE;
+    [self.playAgainBtn setTitle:@"" forState:UIControlStateDisabled];
+    self.playAgainBtn.titleLabel.text = @"hello";
+
     self.oLabel.textColor =[UIColor whiteColor];
-//    self.oLabel.text =@"O";
+
      self.oLabel.backgroundColor=[UIColor redColor];
 
 //    load 8 winning combinations into winningSets array with arrays, each array corespond to a a winning row/colum/diagonal line
@@ -93,9 +90,6 @@
 }
 
 -(void)startTheGame{
-
-//    self.winLabel.enabled = FALSE;
-//    self.winLabel.text =@"";
 
     self.remainingLabelsInGame = [NSMutableArray arrayWithArray:self.myLabels];
 
@@ -165,11 +159,14 @@
         {
             self.whichPlayerLabel.text = @"X wins";
             [self setAlertXWins];
+              self.playAgainBtn.enabled = TRUE;
         }
         else
         {
             self.whichPlayerLabel.text = @"TIE";
             self.whichPlayerLabel.textColor = [UIColor greenColor];
+            self.playAgainBtn.enabled = TRUE;
+
             [self setAlertGameOver];
         }
 
@@ -184,6 +181,8 @@
         else
         {
             self.whichPlayerLabel.text = @"O wins";
+            self.playAgainBtn.enabled = TRUE;
+
             [self setAlertOWins];
         }
     }
@@ -204,7 +203,6 @@
             self.myLabelsIndex = [self getMyLabelsIndex:tempLabel];
 //remove marked label from the array
             [self.remainingLabelsInGame removeObjectIdenticalTo:tempLabel];
-//            [self SetTheGameEnd:self.turnCount];
             self.turnCount++;
             if (self.turn) {
                 self.turn = FALSE;
@@ -218,7 +216,6 @@
     return nil;
 }
 
-
 -(void)markLabelBlue:(UILabel*)label{
     label.textColor =[UIColor blueColor];
     label.text =@"X";
@@ -228,13 +225,7 @@
     label.textColor =[UIColor redColor];
     label.text =@"O";
 }
-//-(void)SetTheGameEnd: (NSInteger)count{
-//    [self.gameMatrix replaceObjectAtIndex:count withObject:@YES];
-//    if (count > 9) {
-////    if ([self.gameMatrix containsObject:@NO]) {
-//        NSLog(@"game over");
-//    }
-//}
+
 
 //get an idex of corresponding label in the array
 -(NSInteger)getMyLabelsIndex: (UILabel*)label
@@ -245,7 +236,6 @@
         if ([self.myLabels[i] isEqual:label])
         {
             j = i;
-//            return i;
             break;
         }
     }
@@ -277,11 +267,7 @@
             }
 
         }
-//        NSLog(@"three in row count %d", threeInRow);
         if (threeInRow==3) {
-            NSLog(@"win!!!!!!!");
-//            self.winLabel.enabled = TRUE;
-//            self.winLabel.text = @"win!";
             self.win = TRUE;
             break;
         }
@@ -363,20 +349,31 @@
 }
 
 - (IBAction)handlePanforX:(UIPanGestureRecognizer *)recognizer
-    {
-if (self.turn) {
-    CGPoint translation = [recognizer translationInView:self.view];
+{
+    if (self.turn)
+
+        [self handleMyPan:recognizer];
+
+}
+
+- (IBAction)handlePanForO:(UIPanGestureRecognizer *)recognizer
+{
+    if (!self.turn)
+
+        [self handleMyPan:recognizer];
+}
+
+-(void)handleMyPan:(UIPanGestureRecognizer*)recognizer{
+
     if (self.originalCoordinate)
     {
-        if (CGRectContainsPoint(self.xLabel.frame, recognizer.view.center)) {
+        self.originalPosition = recognizer.view.center;
 
-            self.originalPosition = recognizer.view.center;
-        }
-        else if (CGRectContainsPoint(self.oLabel.frame, recognizer.view.center)){
-            self.originalPosition = recognizer.view.center;
-        }
         self.originalCoordinate = false;
     }
+
+    CGPoint translation = [recognizer translationInView:self.view];
+
     recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
                                          recognizer.view.center.y + translation.y);
     [recognizer setTranslation:CGPointMake(0, 0) inView:self.view];
@@ -388,159 +385,6 @@ if (self.turn) {
         [self checkTurnAndSetLabel:searchLabel];
         recognizer.view.center = self.originalPosition;
         self.originalCoordinate = true;
-        self.panTurn= false;
     }
-
-    }
-else
-{
-    recognizer.enabled=false;
 }
-
-
-}
-
-- (IBAction)handlePanForO:(UIPanGestureRecognizer *)recognizer
-{
-    if (!self.turn)
-    {
-        CGPoint translation = [recognizer translationInView:self.view];
-        if (self.originalCoordinate)
-        {
-            if (CGRectContainsPoint(self.xLabel.frame, recognizer.view.center))
-            {
-                self.originalPosition = recognizer.view.center;
-            }
-            else if (CGRectContainsPoint(self.oLabel.frame, recognizer.view.center))
-            {
-                self.originalPosition = recognizer.view.center;
-            }
-            
-            self.originalCoordinate = false;
-        }
-
-        recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
-                                             recognizer.view.center.y + translation.y);
-        [recognizer setTranslation:CGPointMake(0, 0) inView:self.view];
-
-        if (recognizer.state == UIGestureRecognizerStateEnded)
-        {
-            CGPoint finalPoint = recognizer.view.center;
-            UILabel* searchLabel = [self findLabelUsingPoint:finalPoint];
-            [self checkTurnAndSetLabel:searchLabel];
-            recognizer.view.center = self.originalPosition;
-            self.originalCoordinate = true;
-            self.panTurn= TRUE;
-    //        NSLog(@" O self.panTurn= TRUE");
-        }
-    }
-    else
-    {
-        recognizer.enabled=TRUE;
-//         NSLog(@" O self.panTurn= FALSE");
-    }
-    
-}
-
-//- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
-//    return true;
-//
-//}
-
-//- (IBAction)labelDragWithPanGesture:(UIPanGestureRecognizer *)panGesture {
-//
-//    CGPoint original = panGesture.view.center;
-//    CGPoint originalX = self.xLabel.center;
-//      NSLog(@"stateBegun %f %f", original.x , original.y);
-//    NSLog(@"bla %f %f", originalX.x , originalX.y);
-//
-//
-////     image1.center = [pan locationInView:image1.superview];
-////    [self.view addGestureRecognizer:panGesture];
-////    [self.xLabel addGestureRecognizer:panGesture];
-//
-////    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(move:)];
-//    [panGesture setMinimumNumberOfTouches:1];
-//    [panGesture setMaximumNumberOfTouches:1];
-////    [self.view addGestureRecognizer:panGesture];
-//
-////    [panRecognizer release];
-//
-//    CGPoint translatedPoint = [panGesture translationInView:self.view];
-//
-////    if (CGRectContainsPoint(self.xLabel.frame, translatedPoint ) {
-////        cga
-////    }
-////    NSLog(@"translatedPoint %@", NSStringFromCGPoint (translatedPoint));
-//
-////    CGPoint original =panGesture.view.center;
-//
-//    panGesture.view.center = CGPointMake(panGesture.view.center.x + translatedPoint.x,
-//                                         panGesture.view.center.y + translatedPoint.y);
-//
-//    [panGesture setTranslation:CGPointMake(0, 0) inView:self.view];
-//    if ([panGesture state] == UIGestureRecognizerStateEnded) {
-//
-//        panGesture.view.center = CGPointMake(panGesture.view.center.x - translatedPoint.x,
-//                                             panGesture.view.center.y - translatedPoint.y);
-//        NSLog(@"stateEnded %f %f", original.x , original.y);
-//    }
-
-//testing
-//    CGFloat firstX;
-//    CGFloat firstY;
-//
-//    if ([panGesture state] == UIGestureRecognizerStateBegan) {
-//        firstX = [[panGesture view] center].x;
-//        firstY = [[panGesture view] center].y;
-//    }
-//
-//    translatedPoint = CGPointMake(firstX+translatedPoint.x, firstY);
-//    NSLog(@"translatedPoint 2 %@", NSStringFromCGPoint (translatedPoint));
-
-//    [[panGesture view] setCenter:translatedPoint];
-
-//    if ([panGesture state] == UIGestureRecognizerStateEnded) {
-//
-//
-//
-//        CGPoint velocity = [panGesture velocityInView:self.view];
-//        CGFloat magnitude = sqrtf((velocity.x * velocity.x) + (velocity.y * velocity.y));
-//        CGFloat slideMult = magnitude / 200;
-//        NSLog(@"magnitude: %f, slideMult: %f", magnitude, slideMult);
-//
-//        float slideFactor = 0.1 * slideMult; // Increase for more of a slide
-//        CGPoint finalPoint = CGPointMake(panGesture.view.center.x + (velocity.x * slideFactor),
-//                                         panGesture.view.center.y + (velocity.y * slideFactor));
-//        finalPoint.x = MIN(MAX(finalPoint.x, 0), self.view.bounds.size.width);
-//        finalPoint.y = MIN(MAX(finalPoint.y, 0), self.view.bounds.size.height);
-//
-//        [UIView animateWithDuration:slideFactor*2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-//            panGesture.view.center = finalPoint;
-//        } completion:nil];
-//
-
-
-//
-//        CGFloat velocityX = (0.2*[panGesture velocityInView:self.view].x);
-//        NSLog(@"velocityX  %f", velocityX);
-//
-//
-//
-//        CGFloat finalX = translatedPoint.x + velocityX;
-//        CGFloat finalY = firstY;// translatedPoint.y + (.35*[(UIPanGestureRecognizer*)sender velocityInView:self.view].y);
-//        CGFloat animationDuration = (ABS(velocityX)*.0002)+.2;
-//
-//        NSLog(@"the duration is: %f", animationDuration);
-//
-//        [UIView beginAnimations:nil context:NULL];
-//        [UIView setAnimationDuration:animationDuration];
-//        [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-////        [UIView setAnimationDelegate:self];
-////        [UIView setAnimationDidStopSelector:@selector(animationDidFinish)];
-//        [[panGesture view] setCenter:CGPointMake(finalX, finalY)];
-//        [UIView commitAnimations];
-
-//    }
-//}
 @end
