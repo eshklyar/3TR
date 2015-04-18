@@ -37,7 +37,7 @@
 
 @property NSArray *winningSets;
 
-@property BOOL originalCoordinate;
+@property BOOL panned;
 @property CGPoint originalPosition;
 @property NSTimer *timer;
 @property BOOL timeOut;
@@ -53,7 +53,7 @@
     [self resetTimer:self.timer];
     self.timeOut = FALSE;
 
-    self.originalCoordinate = true;
+    self.panned = FALSE;
 
     self.xLabel.textColor =[UIColor whiteColor];
     self.xLabel.backgroundColor=[UIColor blueColor];
@@ -155,14 +155,11 @@
 #pragma NEWGAME
 
 -(Player*)getPlayer:(BOOL)playerTurn{
-    if (!playerTurn) {
-        NSLog(@"player1");
-        return self.playerOne;
-    } else {
-        NSLog(@"player2");
-        return self.playerTwo;
-    }
 
+    if (!playerTurn)
+        return self.playerOne;
+     else
+        return self.playerTwo;
 }
 
 //method to detect user tapping on the screen
@@ -172,33 +169,16 @@
     UILabel* searchLabel = [self findLabelUsingPoint:point];
     if (searchLabel && ! self.timeOut)
         [self checkTurnAndSetLabel:searchLabel];
-    NSLog(@"turn check %d", self.turn);
-//    if (self.turn)
-//        NSLog(@"player2");
-//    else
-//          NSLog(@"player1");
-    [self getPlayer:self.turn];
-
 }
 -(void)startTimer{
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:50.0
-                                                      target:self
-                                                    selector:@selector(timeOut:)
-                                                    userInfo:nil
-                                                     repeats:NO];
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:30.0
+                        target:self
+                        selector:@selector(timeOut:)
+                        userInfo:nil
+                        repeats:NO];
 }
 -(void)timeOut: (NSTimer*) myTimer{
-//    self.win = TRUE;
     self.timeOut =TRUE;
-
-    NSLog(@"time out");
-
-    if (!self.turn) {
-        NSLog(@"PL 1");
-    } else {
-         NSLog(@"PL 2");
-    }
-
     [self whoWon:self.turn];
 }
 -(void)resetTimer:(NSTimer*) timer {
@@ -207,7 +187,7 @@
 }
 
 -(void)checkTurnAndSetLabel:(UILabel*) searchLabel{
-    [self changeMatrixValueForPlayer:[self getPlayer:self.turn] atIndex:self.myLabelsIndex];
+
 
     [self markLabelWithColor:searchLabel];
 
@@ -215,34 +195,22 @@
 
     [self startTimer];
 
-     if (!self.turn)
-    {
+    [self changeMatrixValueForPlayer:[self getPlayer:self.turn] atIndex:self.myLabelsIndex];
 
-        if (!self.win && self.turnCount!=9)
-            [self setwhichPlayerLabel:self.turn];
-
-        else if (self.turnCount!=9)
-        {
-            [self whoWon:self.turn];
-        }
-        else
-        {
-            self.whichPlayerLabel.text = @"TIE";
-            self.whichPlayerLabel.textColor = [UIColor greenColor];
-            self.playAgainBtn.enabled = TRUE;
-
-            [self setAlertGameOver];
-        }
+    if (self.win) {
+        [self whoWon:self.turn];
     }
 
-    else if (self.turn)
-    {
-        if (!self.win)
-            [self setwhichPlayerLabel:self.turn];
-        else
-        {
-            [self whoWon:self.turn];
-        }
+    else if (self.turnCount!=9)
+        [self setwhichPlayerLabel:self.turn];
+
+    else{
+
+        self.whichPlayerLabel.text = @"TIE";
+        self.whichPlayerLabel.textColor = [UIColor greenColor];
+        self.playAgainBtn.enabled = TRUE;
+
+        [self setAlertGameOver];
     }
 }
 -(void)whoWon:(BOOL)turn{
@@ -433,11 +401,11 @@
 
 -(void)handleMyPan:(UIPanGestureRecognizer*)recognizer{
 
-    if (self.originalCoordinate)
+    if (!self.panned)
     {
         self.originalPosition = recognizer.view.center;
 
-        self.originalCoordinate = false;
+        self.panned = TRUE;
     }
 
     CGPoint translation = [recognizer translationInView:self.view];
@@ -452,7 +420,7 @@
         UILabel* searchLabel = [self findLabelUsingPoint:finalPoint];
         [self checkTurnAndSetLabel:searchLabel];
         recognizer.view.center = self.originalPosition;
-        self.originalCoordinate = true;
+        self.panned = FALSE;
     }
 }
 @end
