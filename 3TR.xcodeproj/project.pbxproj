@@ -15,6 +15,7 @@
 		BC2C03D01AC0E0A7007BE4B3 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC2C03CE1AC0E0A7007BE4B3 /* LaunchScreen.xib */; };
 		BC2C03DC1AC0E0A7007BE4B3 /* _TRTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BC2C03DB1AC0E0A7007BE4B3 /* _TRTests.m */; };
 		BC2C03EA1AC8C263007BE4B3 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = BC2C03E91AC8C263007BE4B3 /* Player.m */; };
+		BCD851FE1AE2C181004445D9 /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BCD851FD1AE2C181004445D9 /* WebViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,8 @@
 		BC2C03DB1AC0E0A7007BE4B3 /* _TRTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _TRTests.m; sourceTree = "<group>"; };
 		BC2C03E81AC8C263007BE4B3 /* Player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
 		BC2C03E91AC8C263007BE4B3 /* Player.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Player.m; sourceTree = "<group>"; };
+		BCD851FC1AE2C181004445D9 /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
+		BCD851FD1AE2C181004445D9 /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +94,8 @@
 				BC2C03E81AC8C263007BE4B3 /* Player.h */,
 				BC2C03E91AC8C263007BE4B3 /* Player.m */,
 				BC2C03C91AC0E0A7007BE4B3 /* Main.storyboard */,
+				BCD851FC1AE2C181004445D9 /* WebViewController.h */,
+				BCD851FD1AE2C181004445D9 /* WebViewController.m */,
 				BC2C03CC1AC0E0A7007BE4B3 /* Images.xcassets */,
 				BC2C03CE1AC0E0A7007BE4B3 /* LaunchScreen.xib */,
 				BC2C03BF1AC0E0A7007BE4B3 /* Supporting Files */,
@@ -225,6 +230,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC2C03EA1AC8C263007BE4B3 /* Player.m in Sources */,
+				BCD851FE1AE2C181004445D9 /* WebViewController.m in Sources */,
 				BC2C03C81AC0E0A7007BE4B3 /* ViewController.m in Sources */,
 				BC2C03C51AC0E0A7007BE4B3 /* AppDelegate.m in Sources */,
 				BC2C03C21AC0E0A7007BE4B3 /* main.m in Sources */,
@@ -418,6 +424,7 @@
 				BC2C03E11AC0E0A7007BE4B3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BC2C03E21AC0E0A7007BE4B3 /* Build configuration list for PBXNativeTarget "3TRTests" */ = {
 			isa = XCConfigurationList;
@@ -426,6 +433,7 @@
 				BC2C03E41AC0E0A7007BE4B3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
