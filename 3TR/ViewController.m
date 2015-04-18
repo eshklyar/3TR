@@ -39,6 +39,8 @@
 
 @property BOOL originalCoordinate;
 @property CGPoint originalPosition;
+@property NSTimer *timer;
+@property BOOL timeOut;
 
 
 @end
@@ -48,13 +50,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    [self resetTimer:self.timer];
+    self.timeOut = FALSE;
+
     self.originalCoordinate = true;
 
     self.xLabel.textColor =[UIColor whiteColor];
     self.xLabel.backgroundColor=[UIColor blueColor];
     self.playAgainBtn.enabled = FALSE;
     [self.playAgainBtn setTitle:@"" forState:UIControlStateDisabled];
-    self.playAgainBtn.titleLabel.text = @"hello";
 
     self.oLabel.textColor =[UIColor whiteColor];
 
@@ -77,19 +81,22 @@
 
     self.myLabels = @[self.Label1, self.Label2, self.Label3, self.Label4, self.Label5, self.Label6,self.Label7, self.Label8, self.Label9];
 
-
-#pragma Player
     //created two players and inited array property with bool faulse values
     self.playerOne = [Player new];
     self.playerOne.name =@"Player One";
+    self.playerOne.color = [UIColor blueColor];
 
     self.playerTwo = [Player new];
     self.playerTwo.name =@"Player Two";
+    self.playerTwo.color = [UIColor redColor];
 
     [self startTheGame];
 }
 
+#pragma NEWGAME
+
 -(void)startTheGame{
+    self.timeOut =FALSE;
 
     self.remainingLabelsInGame = [NSMutableArray arrayWithArray:self.myLabels];
 
@@ -99,17 +106,16 @@
     [self setwhichPlayerLabel:self.turn];
     [self setLabelsNewGame];
 
+    self.playAgainBtn.enabled = FALSE;
+    [self.playAgainBtn setTitle:@"" forState:UIControlStateDisabled];
+
+
     //init original matrix with bool NO values
     self.gameMatrix = [NSMutableArray new];
     [self matrixWithBoolNo:self.gameMatrix];
     [self setupPlayer:self.playerOne];
     [self setupPlayer:self.playerTwo];
 }
-
--(void)setupPlayer:(Player*)player{
-    player.matrix= [NSMutableArray arrayWithArray: self.gameMatrix];
-}
-
 //init the gameMatrix
 -(NSMutableArray*)matrixWithBoolNo:(NSMutableArray*)array{
     for (int i=0; i<9; i++) {
@@ -117,24 +123,46 @@
     }
     return array;
 }
+-(void)setupPlayer:(Player*)player{
+    player.matrix= [NSMutableArray arrayWithArray: self.gameMatrix];
+}
 
 //set labels background color
--(void)setLabelsNewGame {
-    for (UILabel *label in self.myLabels) {
-            label.text =@"";
-            label.backgroundColor =[UIColor grayColor];
-        }
+-(void)setLabelsNewGame
+{
+    for (UILabel *label in self.myLabels)
+    {
+        label.text =@"";
+        label.backgroundColor =[UIColor grayColor];
+    }
 }
 
 //set whichPlayerLabel label
--(void) setwhichPlayerLabel: (BOOL) turn{
-    if (turn) {
+-(void) setwhichPlayerLabel: (BOOL) turn
+{
+    if (turn)
+    {
         self.whichPlayerLabel.text = @"PLAYER X TURN";
         self.whichPlayerLabel.textColor= [UIColor blueColor];
-    } else {
-          self.whichPlayerLabel.text = @"PLAYER O TURN";
+    }
+    else
+    {
+        self.whichPlayerLabel.text = @"PLAYER O TURN";
         self.whichPlayerLabel.textColor= [UIColor redColor];
     }
+}
+
+#pragma NEWGAME
+
+-(Player*)getPlayer:(BOOL)playerTurn{
+    if (!playerTurn) {
+        NSLog(@"player1");
+        return self.playerOne;
+    } else {
+        NSLog(@"player2");
+        return self.playerTwo;
+    }
+
 }
 
 //method to detect user tapping on the screen
@@ -142,24 +170,60 @@
 {
     CGPoint point = [gesture locationInView:self.view];
     UILabel* searchLabel = [self findLabelUsingPoint:point];
-    [self checkTurnAndSetLabel:searchLabel];
+    if (searchLabel && ! self.timeOut)
+        [self checkTurnAndSetLabel:searchLabel];
+    NSLog(@"turn check %d", self.turn);
+//    if (self.turn)
+//        NSLog(@"player2");
+//    else
+//          NSLog(@"player1");
+    [self getPlayer:self.turn];
+
+}
+-(void)startTimer{
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:50.0
+                                                      target:self
+                                                    selector:@selector(timeOut:)
+                                                    userInfo:nil
+                                                     repeats:NO];
+}
+-(void)timeOut: (NSTimer*) myTimer{
+//    self.win = TRUE;
+    self.timeOut =TRUE;
+
+    NSLog(@"time out");
+
+    if (!self.turn) {
+        NSLog(@"PL 1");
+    } else {
+         NSLog(@"PL 2");
+    }
+
+    [self whoWon:self.turn];
+}
+-(void)resetTimer:(NSTimer*) timer {
+    [timer invalidate];
+    timer = nil;
 }
 
 -(void)checkTurnAndSetLabel:(UILabel*) searchLabel{
+    [self changeMatrixValueForPlayer:[self getPlayer:self.turn] atIndex:self.myLabelsIndex];
 
-    if (!self.win && !self.turn && searchLabel)
+    [self markLabelWithColor:searchLabel];
+
+    [self resetTimer:self.timer];
+
+    [self startTimer];
+
+     if (!self.turn)
     {
-        [self markLabelBlue:searchLabel];
-        [self changeMatrixValueForPlayer:self.playerOne atIndex:self.myLabelsIndex];
 
         if (!self.win && self.turnCount!=9)
             [self setwhichPlayerLabel:self.turn];
 
         else if (self.turnCount!=9)
         {
-            self.whichPlayerLabel.text = @"X wins";
-            [self setAlertXWins];
-              self.playAgainBtn.enabled = TRUE;
+            [self whoWon:self.turn];
         }
         else
         {
@@ -169,25 +233,33 @@
 
             [self setAlertGameOver];
         }
-
     }
-    else if (!self.win && self.turn && searchLabel)
-    {
-        [self markLabelRed:searchLabel];
-        [self changeMatrixValueForPlayer:self.playerTwo atIndex:self.myLabelsIndex];
 
+    else if (self.turn)
+    {
         if (!self.win)
             [self setwhichPlayerLabel:self.turn];
         else
         {
-            self.whichPlayerLabel.text = @"O wins";
-            self.playAgainBtn.enabled = TRUE;
-
-            [self setAlertOWins];
+            [self whoWon:self.turn];
         }
     }
 }
+-(void)whoWon:(BOOL)turn{
 
+    if (!turn) {
+        self.whichPlayerLabel.text = @"X wins";
+        [self setAlertXWins];
+        self.playAgainBtn.enabled = TRUE;
+    } else {
+        self.whichPlayerLabel.text = @"O wins";
+        self.playAgainBtn.enabled = TRUE;
+
+        [self setAlertOWins];
+    }
+
+
+}
 //this method is called from onLabelTapped()
 //return a selected label
 //sets myLabelsIndex - index of a selected label
@@ -204,28 +276,22 @@
 //remove marked label from the array
             [self.remainingLabelsInGame removeObjectIdenticalTo:tempLabel];
             self.turnCount++;
-            if (self.turn) {
-                self.turn = FALSE;
-            }
-            else{
-                self.turn = TRUE;
-            }
+            self.turn = !self.turn;
         return tempLabel;
         }
     }
     return nil;
 }
+-(void)markLabelWithColor:(UILabel*) label{
+    if (!self.turn) {
+        label.textColor =[UIColor blueColor];
+        label.text =@"X";
+    } else {
+        label.textColor =[UIColor redColor];
+        label.text =@"O";
+    }
 
--(void)markLabelBlue:(UILabel*)label{
-    label.textColor =[UIColor blueColor];
-    label.text =@"X";
 }
-
--(void)markLabelRed:(UILabel*)label{
-    label.textColor =[UIColor redColor];
-    label.text =@"O";
-}
-
 
 //get an idex of corresponding label in the array
 -(NSInteger)getMyLabelsIndex: (UILabel*)label
@@ -277,6 +343,8 @@
 - (IBAction)onPlayAgainBtnPressed:(id)sender {
     [self startTheGame];
 }
+
+
 
 -(void)setAlertGameOver{
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"IT'S A TIE"
